@@ -1,0 +1,6 @@
+#ifndef KEYBOARDS_MODULO_H_
+#define KEYBOARDS_MODULO_H_
+
+#include "quantum.h"
+
+#endif /* KEYBOARDS_MODULO_H_ */
