@@ -96,6 +96,7 @@ void matrix_init(void)
     }
 
     // debug
+    // debug_enable = true;
     debug_matrix = true;
     LED_ON();
     wait_ms(500);
@@ -106,7 +107,7 @@ uint8_t matrix_scan(void)
 {
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         select_row(i);
-        // wait_us(30);  // without this wait read unstable value.
+        wait_us(30);  // without this wait read unstable value.
         matrix_row_t cols = read_cols();
         if (matrix_debouncing[i] != cols) {
             matrix_debouncing[i] = cols;
@@ -197,6 +198,7 @@ static void select_row(uint8_t row)
 
     // read from IO expander
     status = i2cMasterReceive(&I2CD1, row_addrs[row], matrix_row_read, 2);
+
     if (MSG_OK != status) {
         // error
     } else {
