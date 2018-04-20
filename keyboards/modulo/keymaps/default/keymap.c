@@ -18,7 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "modulo.h"
 
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    {{KC_A}}, // test with KC_CAPS, KC_A, RESET
+[0] = KEYMAP( \
+  KC_A, KC_B
+)
 };
 
 const uint16_t fn_actions[] = {

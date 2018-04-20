@@ -35,12 +35,18 @@ static uint8_t debouncing = DEBOUNCE;
 /* matrix state(1:on, 0:off) */
 static matrix_row_t matrix[MATRIX_ROWS];
 static matrix_row_t matrix_debouncing[MATRIX_ROWS];
+static uint8_t matrix_row_read[2] = { 0xff, 0xff };
 
 static matrix_row_t read_cols(void);
 static void init_cols(void);
 static void unselect_rows(void);
 static void select_row(uint8_t row);
 
+/* I2C control setting */
+static const uint16_t row_addrs[MATRIX_ROWS] = {
+    0b0111000
+};
+static const uint8_t io_setting = 0b11111111;
 
 inline
 uint8_t matrix_rows(void)
@@ -68,6 +74,15 @@ uint8_t matrix_cols(void)
 #define LED_TGL()   do { palTogglePad(GPIOB, 1); } while (0)
 #endif
 
+/*
+ * I2C1 config.
+ */
+static const I2CConfig i2ccfg1 = {
+    OPMODE_I2C,
+    100000,
+    STD_DUTY_CYCLE,
+};
+
 void matrix_init(void)
 {
     // initialize row and col
@@ -80,7 +95,7 @@ void matrix_init(void)
         matrix_debouncing[i] = 0;
     }
 
-    //debug
+    // debug
     debug_matrix = true;
     LED_ON();
     wait_ms(500);
@@ -91,7 +106,7 @@ uint8_t matrix_scan(void)
 {
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         select_row(i);
-        wait_us(30);  // without this wait read unstable value.
+        // wait_us(30);  // without this wait read unstable value.
         matrix_row_t cols = read_cols();
         if (matrix_debouncing[i] != cols) {
             matrix_debouncing[i] = cols;
@@ -140,21 +155,33 @@ void matrix_print(void)
 
 /* Column pin configuration
  */
-static void  init_cols(void)
+static void init_cols(void)
 {
-#ifdef BOARD_MAPLEMINI_STM32_F103
-    // don't need pullup/down, since it's pulled down in hardware
-    palSetPadMode(GPIOB, 8, PAL_MODE_INPUT);
-#else
-    palSetPadMode(GPIOB, 8, PAL_MODE_INPUT_PULLDOWN);
-#endif
+    msg_t status = MSG_OK;
+
+    // setup I2C hardware
+    palSetPadMode(GPIOB, 6, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SCL */
+    palSetPadMode(GPIOB, 7, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SDA */
+
+    // setup I2C bus
+    i2cStart(&I2CD1, &i2ccfg1);
+
+    // setup IO expanders
+    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+        status = i2cMasterTransmit(&I2CD1, row_addrs[row], &io_setting, 1, NULL, 0);
+    }
+
+    if (MSG_OK != status) {
+        // error
+    } else {
+        // success
+    }
 }
 
 /* Returns status of switches(1:on, 0:off) */
 static matrix_row_t read_cols(void)
 {
-    return ((palReadPad(GPIOB, 8)==PAL_LOW) ? 0 : (1<<0));
-    // | ((palReadPad(...)==PAL_HIGH) ? 0 : (1<<1))
+    return ~matrix_row_read[0];
 }
 
 /* Row pin configuration
@@ -166,12 +193,14 @@ static void unselect_rows(void)
 
 static void select_row(uint8_t row)
 {
-    (void)row;
-    // Output low to select
-    // switch (row) {
-    //     case 0:
-    //         palSetPadMode(GPIOA, GPIOA_PIN10, PAL_MODE_OUTPUT_PUSHPULL);
-    //         palSetPad(GPIOA, GPIOA_PIN10, PAL_LOW);
-    //         break;
-    // }
+    msg_t status = MSG_OK;
+
+    // read from IO expander
+    status = i2cMasterReceive(&I2CD1, row_addrs[row], matrix_row_read, 2);
+    if (MSG_OK != status) {
+        // error
+    } else {
+        // success
+    }
 }
+
