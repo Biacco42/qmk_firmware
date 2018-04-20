@@ -24,11 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEVICE_VER      0x0100
 #define MANUFACTURER    Biacco42
 #define PRODUCT Modulo
-#define DESCRIPTION The Modular keyboard
+#define DESCRIPTION The Modular keyboard pendant
 
 /* key matrix size */
 #define MATRIX_ROWS 1
-#define MATRIX_COLS 1
+#define MATRIX_COLS 2
 #define DIODE_DIRECTION COL2ROW
 
 /* define if matrix has ghost */
