@@ -44,6 +44,7 @@ static void select_row(uint8_t row);
 
 /* I2C control setting */
 static const uint16_t row_addrs[MATRIX_ROWS] = {
+    0b0111000, \
     0b0111000
 };
 static const uint8_t io_setting = 0b11111111;
@@ -163,14 +164,19 @@ static void init_cols(void)
     // setup I2C hardware
     palSetPadMode(GPIOB, 6, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SCL */
     palSetPadMode(GPIOB, 7, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SDA */
+    palSetPadMode(GPIOB, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SCL */
+    palSetPadMode(GPIOB, 11, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);   /* SDA */
 
     // setup I2C bus
     i2cStart(&I2CD1, &i2ccfg1);
+    i2cStart(&I2CD2, &i2ccfg1);
 
     // setup IO expanders
-    for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        status = i2cMasterTransmit(&I2CD1, row_addrs[row], &io_setting, 1, NULL, 0);
-    }
+    // for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+    //     status = i2cMasterTransmit(&I2CD1, row_addrs[row], &io_setting, 1, NULL, 0);
+    // }
+    status = i2cMasterTransmit(&I2CD1, row_addrs[0], &io_setting, 1, NULL, 0);
+    status = i2cMasterTransmit(&I2CD2, row_addrs[1], &io_setting, 1, NULL, 0);
 
     if (MSG_OK != status) {
         // error
@@ -197,7 +203,11 @@ static void select_row(uint8_t row)
     msg_t status = MSG_OK;
 
     // read from IO expander
-    status = i2cMasterReceive(&I2CD1, row_addrs[row], matrix_row_read, 2);
+    if (row == 0) {
+        status = i2cMasterReceive(&I2CD1, row_addrs[row], matrix_row_read, 2);
+    } else {
+        status = i2cMasterReceive(&I2CD2, row_addrs[row], matrix_row_read, 2);
+    }
 
     if (MSG_OK != status) {
         // error

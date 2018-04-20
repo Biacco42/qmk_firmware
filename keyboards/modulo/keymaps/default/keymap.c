@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const uint16_t keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [0] = KEYMAP( \
-  KC_A, KC_B
+  KC_A, KC_B, \
+  KC_D, KC_E  \
 )
 };
 

@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DESCRIPTION The Modular keyboard pendant
 
 /* key matrix size */
-#define MATRIX_ROWS 1
+#define MATRIX_ROWS 2
 #define MATRIX_COLS 2
 #define DIODE_DIRECTION COL2ROW
 
