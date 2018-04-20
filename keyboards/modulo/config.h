@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID      0x0001
 #define DEVICE_VER      0x0100
 #define MANUFACTURER    Biacco42
-#define PRODUCT Modulo
+#define PRODUCT Modulo pendant
 #define DESCRIPTION The Modular keyboard pendant
 
 /* key matrix size */
