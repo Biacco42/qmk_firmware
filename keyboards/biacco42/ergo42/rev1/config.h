@@ -36,6 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SOFT_SERIAL_PIN D0
 
+#define PERMISSIVE_HOLD
+
 /* define if matrix has ghost */
 //#define MATRIX_HAS_GHOST
 
